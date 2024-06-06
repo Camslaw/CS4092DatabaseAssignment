@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors'); // Import the cors middleware
+const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -15,7 +15,7 @@ const pool = new Pool({
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://cs4092db.netlify.app'], // Replace with your frontend origins
+  origin: ['http://localhost:3000', 'cs4092db.netlify.app'], // Replace with your frontend origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
