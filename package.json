@@ -1,0 +1,17 @@
+{
+  "name": "cs4092databaseassignment",
+  "version": "1.0.0",
+  "description": "This is a project for the CS4092 - Database Design and Development course at the University of Cincinnati. It is a full stack web application for an online store that utilizes the PERN stack (PostgreSQL, Express, React, Node.js).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  }
+}
