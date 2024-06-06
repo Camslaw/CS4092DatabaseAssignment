@@ -1,24 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const CustomerForm = () => {
   const [name, setName] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
 
+  useEffect(() => {
+    console.log('API URL:', process.env.REACT_APP_API_URL); // Log the API URL
+  }, []);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log('Submitting form with data:', { name, currentBalance }); // Log form data
     try {
-      // SWAP BETWEEN LOCAL HOST AND HEROKU HOSTING (heroku domain) `${process.env.REACT_APP_API_URL}/customers`
-      const response = await axios.post('/customers', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/customers`, {
         name,
         currentBalance: parseFloat(currentBalance)
       });
-      console.log('Customer added:', response.data);
-      // Clear the form fields
+      console.log('Customer added:', response.data); // Log response data
       setName('');
       setCurrentBalance('');
     } catch (error) {
-      console.error('There was an error adding the customer!', error);
+      console.error('There was an error adding the customer!', error); // Log error
     }
   };
 
@@ -37,6 +40,7 @@ const CustomerForm = () => {
         <label>Current Balance:</label>
         <input
           type="number"
+          step="0.01"
           value={currentBalance}
           onChange={(e) => setCurrentBalance(e.target.value)}
           required

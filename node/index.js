@@ -1,5 +1,5 @@
-// index.js
 const express = require('express');
+const cors = require('cors'); // Import the cors middleware
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -13,6 +13,13 @@ const pool = new Pool({
   }
 });
 
+// Enable CORS for all routes
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://cs4092db.netlify.app'], // Replace with your frontend origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -23,14 +30,15 @@ app.get('/', (req, res) => {
 app.post('/customers', async (req, res) => {
   const { name, currentBalance } = req.body;
   try {
+    console.log('Request received:', { name, currentBalance });
     const result = await pool.query(
       'INSERT INTO Customers (Name, CurrentBalance) VALUES ($1, $2) RETURNING *',
       [name, currentBalance]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error inserting customer:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err.message });
   }
 });
 
