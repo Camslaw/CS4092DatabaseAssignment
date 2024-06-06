@@ -1,7 +1,7 @@
 {
   "name": "cs4092databaseassignment",
   "version": "1.0.0",
-  "description": "This is a project for the CS4092 - Database Design and Development course at the University of Cincinnati. It is a full stack web application for an online store that utilizes the PERN stack (PostgreSQL, Express, React, Node.js).",
+  "description": "This is a project for the CS4092 - Database assignment",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

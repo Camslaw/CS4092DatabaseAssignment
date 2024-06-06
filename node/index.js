@@ -8,14 +8,12 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: false
 });
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: ['http://localhost:3000', 'cs4092db.netlify.app'], // Replace with your frontend origins
+  origin: ['http://localhost:3000'], // Include your frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
