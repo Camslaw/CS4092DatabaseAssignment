@@ -19,6 +19,21 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+// Endpoint to add a new customer
+app.post('/customers', async (req, res) => {
+  const { name, currentBalance } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO Customers (Name, CurrentBalance) VALUES ($1, $2) RETURNING *',
+      [name, currentBalance]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Example endpoint to fetch customers
 app.get('/customers', async (req, res) => {
   try {
