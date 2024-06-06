@@ -1,3 +1,5 @@
+import CustomerForm from './CustomerForm';
+import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -17,6 +19,10 @@ function App() {
         >
           Learn React
         </a>
+        <div>
+          <h1>Add New Customer</h1>
+          <CustomerForm />
+      </div>
       </header>
     </div>
   );
