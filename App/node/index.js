@@ -11,43 +11,24 @@ const pool = new Pool({
   ssl: false
 });
 
-// Enable CORS for all routes
 app.use(cors({
-  origin: ['http://localhost:3000'], // Include your frontend URL
+  origin: ['http://localhost:3000', 'http://cs4092db.netlify.app'], // Include frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
 // Endpoint to add a new customer
+// app.get receives information from the database
+// app.post sends information to the database
 app.post('/customers', async (req, res) => {
   const { name, currentBalance } = req.body;
   try {
-    console.log('Request received:', { name, currentBalance });
-    const result = await pool.query(
-      'INSERT INTO Customers (Name, CurrentBalance) VALUES ($1, $2) RETURNING *',
-      [name, currentBalance]
-    );
+    const result = await pool.query('INSERT INTO Customers (Name, CurrentBalance) VALUES ($1, $2) RETURNING *', [name, currentBalance]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error('Error inserting customer:', err);
     res.status(500).json({ error: 'Internal Server Error', details: err.message });
-  }
-});
-
-// Example endpoint to fetch customers
-app.get('/customers', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM Customers');
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

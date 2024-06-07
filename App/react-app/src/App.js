@@ -22,7 +22,7 @@ function App() {
         <div>
           <h1>Add New Customer</h1>
           <CustomerForm />
-      </div>
+        </div>
       </header>
     </div>
   );

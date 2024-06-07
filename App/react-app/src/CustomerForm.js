@@ -5,19 +5,13 @@ const CustomerForm = () => {
   const [name, setName] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
 
-  useEffect(() => {
-    console.log('API URL:', process.env.REACT_APP_API_URL); // Log the API URL
-  }, []);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log('Submitting form with data:', { name, currentBalance }); // Log form data
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/customers`, {
         name,
         currentBalance: parseFloat(currentBalance)
       });
-      console.log('Customer added:', response.data); // Log response data
       setName('');
       setCurrentBalance('');
     } catch (error) {
