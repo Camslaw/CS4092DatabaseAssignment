@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './CustomerForm.css';
 
 const CustomerForm = () => {
   const [name, setName] = useState('');
@@ -22,7 +23,7 @@ const CustomerForm = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Name:</label>
+        <label>Name</label>
         <input
           type="text"
           value={name}
@@ -31,7 +32,7 @@ const CustomerForm = () => {
         />
       </div>
       <div>
-        <label>Current Balance:</label>
+        <label>Current Balance</label>
         <input
           type="number"
           step="0.01"
