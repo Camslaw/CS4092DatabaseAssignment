@@ -2,6 +2,7 @@ import CustomerForm from './CustomerForm';
 import Navbar from './Navbar';
 import React from 'react';
 // import logo from './logo.svg';   example to import an image
+import logo from "./"
 import './App.css';
 
 function App() {
@@ -15,5 +16,15 @@ function App() {
       </div>
   );
 }
+
+function MyButton() {
+  return(
+    <button> I'm testing a button</button>
+  );
+
+}
+
+
+
 
 export default App;
