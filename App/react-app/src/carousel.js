@@ -1,5 +1,6 @@
 import React from 'react'
 import './carousel.css' // added later
+import './'
 import {useState} from 'react'
 import {useEffect} from 'react'
 

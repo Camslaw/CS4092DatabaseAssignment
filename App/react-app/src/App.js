@@ -15,11 +15,12 @@ function App() {
           <CustomerForm />
         </div>
 
-        <div style={{ maxWidth: 1200, marginLeft: 'auto', maarginRight: 'auto', magrinTop: 64}}>
+        <div style={{ maxWidth: 1000, marginLeft: 'auto', marginRight: 'auto', magrinTop: 64}}>
           <Carousel>
             <img src={require("./images/products/headphones/beats.webp")} alt="placeholder"/>
-            <img src={require("./images/products/headphones/logi_pink.webp")} alt="placeholder"/>
-            <img src={require("./images/products/headphones/sony_blue.webp")} alt="placeholder"/>
+            <img src={require("./images/products/Skins/ombre_light_blue.webp")} alt="placeholder"/>
+            <img src={require("./images/products/monitors/LG_ultragear.jpg")} alt="placeholder"/>
+            <img src={require("./images/products/rests/wrist.webp")} alt="placeholder"/>
           </Carousel>
         </div>
 
