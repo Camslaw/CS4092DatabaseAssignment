@@ -36,7 +36,7 @@
     width: 200px;
     height: 200px;
     flex-shrink: 0;
-    flex-grow:1;
+    flex-grow: 1;
 }
 
 .left-arrow, .right-arrow {
@@ -53,17 +53,15 @@
 
 
 .left-arrow{
-    left: 190px;
+    left: 135px;
 }
 
 .right-arrow{
-    right: -18px;
+    right: -105px;
 }
 
 
-.carousel img {
-    width: 200px;
-}
+
 
 
 
