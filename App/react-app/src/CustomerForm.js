@@ -23,7 +23,7 @@ const CustomerForm = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Name</label>
+        <label>Name: </label>
         <input
           type="text"
           value={name}
@@ -32,7 +32,7 @@ const CustomerForm = () => {
         />
       </div>
       <div>
-        <label>Current Balance</label>
+        <label>Current Balance: </label>
         <input
           type="number"
           step="0.01"

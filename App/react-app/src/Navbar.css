@@ -1,0 +1,44 @@
+.navbar {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 0;
+    min-width: 100%;
+    background-color: #333;
+    color: white;
+    display: flex;
+    height: 40px;
+    justify-content: space-between;
+    /* padding: 10px 20px; */
+  }
+  
+  .navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    align-items: center;
+    margin-left: 50px;
+    margin-top: 2px;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    margin-right: 50px;
+  }
+  
+  .navbar-links li {
+    margin-left: 20px;
+    margin-bottom: 0px;
+  }
+  
+  .navbar-links a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .navbar-links a:hover {
+    text-decoration: underline;
+  }
+  
