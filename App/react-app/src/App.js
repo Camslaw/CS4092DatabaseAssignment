@@ -4,6 +4,7 @@ import React from 'react';
 // import logo from './logo.svg';   example to import an image
 import './App.css';
 
+
 function App() {
   return (
       <div>
@@ -13,7 +14,11 @@ function App() {
           <CustomerForm />
         </div>
       </div>
+
   );
 }
+
+
+
 
 export default App;

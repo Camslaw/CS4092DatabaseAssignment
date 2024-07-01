@@ -1,3 +1,10 @@
+:root {
+  --bg-color: #E9E6D8;
+  --sec-color: #A3C9A8;
+  --tri-color: #50808E;
+  --quad-color:#053225;
+}
+
 h1 {
   display: flex;
   flex-direction: column;
@@ -5,3 +12,15 @@ h1 {
   padding: 10px;
   font-size: 20px;
 }
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background-color: var(--bg-color);
+}
+
+
+footer{
+  margin: auto;
+}
+
