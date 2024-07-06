@@ -1,24 +1,26 @@
-import CustomerForm from './CustomerForm';
-import Navbar from './Navbar';
 import React from 'react';
-// import logo from './logo.svg';   example to import an image
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from './Navbar';
+import Cart from "./Cart";
+import SignIn from "./SignIn";
+import Register from "./Register";
+import Staff from "./Staff";
 import './App.css';
-
 
 function App() {
   return (
+    <Router>
       <div>
         <Navbar />
-        <div className='content'>
-          <h1>Add New Customer</h1>
-          <CustomerForm />
-        </div>
+        <Routes>
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/staff" element={<Staff />} />
+        </Routes>
       </div>
-
+    </Router>
   );
 }
-
-
-
 
 export default App;
