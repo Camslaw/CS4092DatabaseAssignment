@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from './Navbar';
 import Home from "./Home";
@@ -8,18 +8,36 @@ import Register from "./Register";
 import Staff from "./Staff";
 import './App.css';
 
-function App() {
+const App = () => {
+  const [products, setProducts] = useState([
+    {
+      image_url: 'path/to/image1.jpg',
+      title: 'Product 1',
+      price: 49.99,
+      description: 'Product description goes here',
+    },
+    {
+      image_url: 'path/to/image2.jpg',
+      title: 'Product 2',
+      price: 49.99,
+      description: 'Product description goes here',
+    },
+    // Add more initial products here if needed
+  ]);
+
   return (
     <Router>
       <div className="app-container">
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/staff" element={<Staff />} />
-        </Routes>
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Home products={products} />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/staff" element={<Staff products={products} />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );
