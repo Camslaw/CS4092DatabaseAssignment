@@ -126,7 +126,52 @@ CREATE TABLE Staff (
 	Salary DECIMAL(8,2) DEFAULT NULL,
 	JobTitle VARCHAR(255) DEFAULT NULL
 );
+--------------------------------------------------------------------------------------------------------------
+-- 1. Add a new customer 
+INSERT INTO Customers (Name, Email, Password, Balance, PreferredShippingAddress, PreferredPaymentMethod)
+VALUES ('John Doe', 'john.doe@example.com', 'password123', 0.00, null, null),
+('Michelle Zoe', 'zoe.m@example.com', 'pinaolover06', 0.00, null, null),
+('Rafael Najarro', 'd.r.najarro@example.com', 'salvifavo', 0.00, null, null),
+('David Martinez', 'dbm.bri@example.com', 'spotlightdrum', 0.00, null, null);
+Select * from Customers
+	
+--------------------------------------------------------------------------------------------------------------
+-- 2. Add a new staff member
+INSERT INTO Staff (Name, Address, Salary, JobTitle)
+VALUES ('John Doe', '10898 Cincinnati Court', 24.50, 'Manager'),
+('Monica Barahona', '0923 Cooper Lane', 30.00, 'Chief'),
+('Jessica Cvet', '1242 Hudson Avenue', 30.00, 'Programmer'),
+	('Cameron Ridge', '8956 Quail Court', 30.00, 'Editor');
 
+
+Select * from Staff
+--------------------------------------------------------------------------------------------------------------
+-- 4. Add a credit card
+INSERT INTO CreditCards (CustomerID, CardNumber, ExpiryDate, CVV, PaymentAddressID)
+VALUES (8, '1234567812345678', '2025-12-31', '123', 2),
+       (9, '6987538232323231','2024-07-08', '234', 3),
+	   (10, '876554331292123', '2027-05-26', '413', 4),
+	    (11, '98765431272354', '2026-09-22', '295', 5);
+
+Select *from CreditCards;
+--------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------
+-- 7. Add an address
+INSERT INTO Addresses( CustomerID, AddressType,  StreetAddress, City, State, Zipcode, Country)
+VALUES (8,'Home' ,'10869 Main St.', 'Cincinnati', 'OH', '45240','USA' ), 
+ 	(9, 'Apartment', '1222 Kenn Road', 'Springdale', 'OH', '45250', 'USA'),  
+	   (10, 'Apartment', '6477 Kenwood Road', 'Cincinnati', 'OH', '45242','USA'),
+		(11, 'Work', '1212 Chocolate Factory Road', 'Cincinnati', 'OH', '34242', 'USA');
+
+SELECT * FROM Addresses
+--------------------------------------------------------------------------------------------------------------
+-- 8. Delete an address
+DELETE FROM Addresses
+WHERE AddressID = 1;
+Select * FROM Addresses
+
+--------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------
 ---------------------------Add product------------------------------
 ---------------------------------------------------------------------
@@ -164,3 +209,5 @@ VALUES (1), (2), (3), (4), (5);
 ---------------------------------------------------------------------
 INSERT INTO ShoppingCartItems (CartID, ProductID, Quantity)
 VALUES (1, 1, 2);
+
+
