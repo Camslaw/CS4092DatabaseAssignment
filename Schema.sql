@@ -126,3 +126,41 @@ CREATE TABLE Staff (
 	Salary DECIMAL(8,2) DEFAULT NULL,
 	JobTitle VARCHAR(255) DEFAULT NULL
 );
+
+---------------------------------------------------------------------
+---------------------------Add product------------------------------
+---------------------------------------------------------------------
+INSERT INTO Products (Name, Category, Type, Brand, Size, Description, Price, ImageURL)
+VALUES 	('Product1', 'Electronics', 'Laptop', 'Dell', '15 inch', 'A powerful laptop', 999.99, 'http://example.com/product1.jpg')
+		('Product2', 'Electronics', 'Mouse', 'Logitech', '3 x 4 x 5 inch', 'A powerful laptop', 999.99, 'http://example.com/product1.jpg');
+		('Product3', 'Electronics', 'Keyboard', 'Keychron', '12 x 4 x 2 inch', 'A powerful laptop', 999.99, 'http://example.com/product1.jpg');
+		('Product4', 'Electronics', 'Monitor', 'Samsung', '27 inch', 'A powerful laptop', 999.99, 'http://example.com/product1.jpg');
+		('Product5', 'Electronics', 'Mousepad', 'Logitech', '12 x 12 x 0.3 inch', 'A powerful laptop', 999.99, 'http://example.com/product1.jpg');
+
+
+---------------------------------------------------------------------
+---------------------------Add stock to warehouse------------------------------
+---------------------------------------------------------------------
+INSERT INTO Stock (WarehouseID, ProductID, Quantity)
+VALUES (1, 1, 100)
+ON CONFLICT (WarehouseID, ProductID)
+DO UPDATE SET Quantity = Stock.Quantity + 100;
+
+---------------------------------------------------------------------
+---------------------------Create a new order------------------------------
+---------------------------------------------------------------------
+INSERT INTO Orders (CustomerID, OrderDate, Status, Total, PaymentCardID)
+VALUES  (1, '2024-07-10', 'Pending', 199.99, 1),
+        (2, '2024-06-22', 'Pending');
+
+---------------------------------------------------------------------
+---------------------------Create customer shopping cart-------------
+---------------------------------------------------------------------
+INSERT INTO ShoppingCart (CustomerID)
+VALUES (1), (2), (3), (4), (5);
+
+---------------------------------------------------------------------
+---------------------------Add product to cart-------------------------
+---------------------------------------------------------------------
+INSERT INTO ShoppingCartItems (CartID, ProductID, Quantity)
+VALUES (1, 1, 2);

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
-import './Staff.css';
 import SignInForm from './SignInForm';
+import './Staff.css';
 
-const Staff = ({ products }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const Staff = ({ products, customerId }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(customerId !== null);
 
-  const handleSignIn = (e) => {
-    e.preventDefault();
+  const handleSignIn = (data) => {
     setIsAuthenticated(true);
+    // Here you should check the credentials, for now we'll just set isAuthenticated to true
   };
 
   return (
@@ -25,6 +25,7 @@ const Staff = ({ products }) => {
                 title={product.title}
                 price={product.price}
                 description={product.description}
+                showAddToCart={false}
               />
             ))}
           </div>

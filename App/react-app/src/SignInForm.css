@@ -2,7 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Ensure it takes the full viewport height */
+    height: 100vh;
   }
   
   .signin-form {
@@ -27,7 +27,7 @@
   .form-group label {
     display: block;
     margin-bottom: 5px;
-    text-align: left; /* Ensure labels are left aligned */
+    text-align: left;
   }
   
   .form-group input {
