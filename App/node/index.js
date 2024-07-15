@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -11,11 +11,11 @@ const pool = new Pool({
   ssl: false
 });
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://cs4092db.netlify.app'], // Include frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// app.use(cors({
+//   origin: ['http://localhost:3000', 'http://cs4092db.netlify.app'], // Include frontend URL
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 app.use(express.json());
 

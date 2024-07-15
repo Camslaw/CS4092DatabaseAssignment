@@ -19,8 +19,6 @@ body {
   background-color: var(--bg-color);
 }
 
-
-footer{
-  margin: auto;
+footer {
+  margin-top: 300px;
 }
-
