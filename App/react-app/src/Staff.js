@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
-import SignInForm from './SignInForm';
+import StaffSignIn from './StaffSignIn';
 import './Staff.css';
 
-const Staff = ({ products, customerId }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(customerId !== null);
+const Staff = ({ products }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleSignIn = (data) => {
+  const handleSignIn = (staff) => {
     setIsAuthenticated(true);
-    // Here you should check the credentials, for now we'll just set isAuthenticated to true
+    console.log('Authenticated staff member:', staff);
+  };
+
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
   };
 
   return (
@@ -16,12 +20,13 @@ const Staff = ({ products, customerId }) => {
       {isAuthenticated ? (
         <>
           <h1>Staff Dashboard</h1>
+          <button onClick={handleSignOut} className="signout-button">Sign Out</button>
           <h2>Product Management</h2>
           <div className="product-grid">
             {products.map((product, index) => (
               <ProductCard
                 key={index}
-                image={product.image_url}
+                image={product.imageurl}
                 title={product.title}
                 price={product.price}
                 description={product.description}
@@ -31,7 +36,7 @@ const Staff = ({ products, customerId }) => {
           </div>
         </>
       ) : (
-        <SignInForm title="Staff Sign In" onSignIn={handleSignIn} />
+        <StaffSignIn title="Staff Sign In" onSignIn={handleSignIn} />
       )}
     </div>
   );

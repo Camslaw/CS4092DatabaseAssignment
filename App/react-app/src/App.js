@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './Navbar';
 import Home from './Home';
 import Cart from './Cart';
-import SignIn from './SignIn';
+import CustomerSignIn from './CustomerSignIn';
 import Register from './Register';
 import Account from './Account';
 import Staff from './Staff';
@@ -30,8 +30,8 @@ const App = () => {
 
   const [customerId, setCustomerId] = useState(null); // Initialize customerId to null
 
-  const handleSignIn = (data) => {
-    console.log('Sign in successful', data);
+  const handleCustomerSignIn = (data) => {
+    console.log('Customer sign in successful', data);
     setCustomerId(data.userId); // Update customerId with the signed-in user's ID
   };
 
@@ -46,10 +46,10 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home products={products} customerId={customerId} />} />
           <Route path="/cart" element={<Cart customerId={customerId} />} />
-          <Route path="/signin" element={<SignIn onSignIn={handleSignIn} />} />
+          <Route path="/signin" element={<CustomerSignIn title="User Sign In" onSignIn={handleCustomerSignIn} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/account" element={<Account customerId={customerId} onSignOut={handleSignOut} />} />
-          <Route path="/staff" element={<Staff products={products} customerId={customerId} />} />
+          <Route path="/staff" element={<Staff products={products} />} />
         </Routes>
       </div>
     </Router>

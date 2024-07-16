@@ -93,6 +93,21 @@ app.post('/cart/add', async (req, res) => {
   }
 });
 
+app.post('/api/staff/signin', async (req, res) => {
+  const { name, staffId } = req.body;
+  try {
+    const result = await pool.query('SELECT * FROM Staff WHERE Name = $1 AND StaffID = $2', [name, staffId]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid name or staff ID' });
+    }
+    const staff = result.rows[0];
+    req.session.staffId = staff.staffid;
+    res.status(200).json({ staffId: staff.staffid, name: staff.name });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
 });
