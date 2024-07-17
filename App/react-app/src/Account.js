@@ -148,15 +148,14 @@ const Account = ({ customerId, onSignOut }) => {
     }
 
     try {
-      await payBalance(customerId, parseFloat(payAmount), selectedCard);
-      alert('Balance paid successfully!');
-      const updatedUserInfo = await getUserInfo(customerId);
-      setUserInfo(updatedUserInfo);
+      await payBalance(customerId, payAmount, selectedCard);
+      alert('Payment successful!');
       setPayAmount('');
-      setSelectedCard(creditCards.length > 0 ? creditCards[0].cardid : '');
+      setSelectedCard('');
+      const info = await getUserInfo(customerId);
+      setUserInfo(info);
     } catch (error) {
       console.error('Failed to pay balance:', error);
-      alert('Failed to pay balance');
     }
   };
 
@@ -238,16 +237,12 @@ const Account = ({ customerId, onSignOut }) => {
                 type="number"
                 value={payAmount}
                 onChange={(e) => setPayAmount(e.target.value)}
-                required
               />
             </label>
             <label>
               Select Credit Card:
-              <select
-                value={selectedCard}
-                onChange={(e) => setSelectedCard(e.target.value)}
-                required
-              >
+              <select value={selectedCard} onChange={(e) => setSelectedCard(e.target.value)}>
+                <option value="">Select a card</option>
                 {creditCards.map(card => (
                   <option key={card.cardid} value={card.cardid}>
                     {`Card ending in ${card.cardnumber.slice(-4)}`}
