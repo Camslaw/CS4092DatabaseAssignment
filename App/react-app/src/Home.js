@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
 import { addItemToCart } from './api';
 import './Home.css';
 
-const Home = ({ products, customerId }) => {
+const Home = ({ customerId }) => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const handleAddToCart = async (product) => {
     try {
       await addItemToCart(customerId, product.productid, product.quantity);
-      // Optionally update cart state if needed
       console.log('Item added to cart successfully');
     } catch (error) {
       console.error('Error adding item to cart', error);

@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE Customers (
     CustomerID SERIAL PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
@@ -128,12 +130,20 @@ CREATE TABLE Staff (
     JobTitle VARCHAR(255) DEFAULT NULL
 );
 
+-- Create the hash_password function
+CREATE OR REPLACE FUNCTION hash_password(password TEXT)
+RETURNS TEXT AS $$
+BEGIN
+  RETURN crypt(password, gen_salt('bf'));
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. Add a new customer 
 INSERT INTO Customers (Name, Email, Password, Balance, PreferredShippingAddress, PreferredPaymentMethod)
-VALUES  ('John Doe', 'john.doe@example.com', 'password123', 0.00, null, null),
-        ('Michelle Zoe', 'zoe.m@example.com', 'pinaolover06', 0.00, null, null),
-        ('Rafael Najarro', 'd.r.najarro@example.com', 'salvifavo', 0.00, null, null),
-        ('David Martinez', 'dbm.bri@example.com', 'spotlightdrum', 0.00, null, null);
+VALUES  ('John Doe', 'john.doe@example.com', hash_password('password123'), 0.00, null, null),
+        ('Michelle Zoe', 'zoe.m@example.com', hash_password('pinaolover06'), 0.00, null, null),
+        ('Rafael Najarro', 'd.r.najarro@example.com', hash_password('salvifavo'), 0.00, null, null),
+        ('David Martinez', 'dbm.bri@example.com', hash_password('spotlightdrum'), 0.00, null, null);
     
 -- 2. Add a new staff member
 INSERT INTO Staff (Name, Address, Salary, JobTitle)

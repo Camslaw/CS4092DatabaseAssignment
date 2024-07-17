@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCartItems, removeItemFromCart, addItemToCart } from './api';
+import { getCartItems, removeItemFromCart, addItemToCart, updateCartItemQuantity } from './api';
 import './Cart.css';
 
 const Cart = ({ customerId }) => {
@@ -9,7 +9,12 @@ const Cart = ({ customerId }) => {
     const fetchCartItems = async () => {
       try {
         const items = await getCartItems(customerId);
-        setCartItems(items);
+        // Ensure price is a number
+        const parsedItems = items.map(item => ({
+          ...item,
+          price: parseFloat(item.price) // Ensure price is a number
+        }));
+        setCartItems(parsedItems);
       } catch (error) {
         console.error('Error fetching cart items', error);
       }
@@ -27,9 +32,14 @@ const Cart = ({ customerId }) => {
   };
 
   const handleQuantityChange = async (cartItemId, newQuantity) => {
-    // Here you should update the quantity in the backend and then refresh the cart items
-    // This is a placeholder for demonstration
-    console.log(`Updating cart item ${cartItemId} to quantity ${newQuantity}`);
+    try {
+      const updatedItem = await updateCartItemQuantity(cartItemId, newQuantity);
+      // Ensure the updated item has price as a number
+      updatedItem.price = parseFloat(updatedItem.price);
+      setCartItems(cartItems.map(item => item.cartitemid === updatedItem.cartitemid ? updatedItem : item));
+    } catch (error) {
+      console.error('Error updating cart item quantity', error);
+    }
   };
 
   return (

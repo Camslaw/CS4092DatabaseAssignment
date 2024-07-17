@@ -65,7 +65,7 @@ app.post('/signout', (req, res) => {
   });
 });
 
-app.post('/cart/add', async (req, res) => {
+app.post('/api/cart/add', async (req, res) => {
   const { customerId, productId, quantity } = req.body;
   console.log('Received add to cart request:', req.body);
   try {
@@ -80,15 +80,58 @@ app.post('/cart/add', async (req, res) => {
     }
     console.log('Cart ID:', cartId);
 
-    // Add the item to the cart
-    const queryText = 'INSERT INTO ShoppingCartItems (CartID, ProductID, Quantity) VALUES ($1, $2, $3) RETURNING *';
-    const queryValues = [cartId, productId, quantity];
-    const itemResult = await pool.query(queryText, queryValues);
-    console.log('Item added to cart:', itemResult.rows[0]);
-
-    res.status(201).json(itemResult.rows[0]);
+    // Check if the product already exists in the cart
+    result = await pool.query('SELECT * FROM ShoppingCartItems WHERE CartID = $1 AND ProductID = $2', [cartId, productId]);
+    if (result.rows.length > 0) {
+      // Update the quantity of the existing item
+      const existingItem = result.rows[0];
+      const newQuantity = existingItem.quantity + quantity;
+      const updateResult = await pool.query('UPDATE ShoppingCartItems SET Quantity = $1 WHERE CartItemID = $2 RETURNING *', [newQuantity, existingItem.cartitemid]);
+      console.log('Updated item quantity:', updateResult.rows[0]);
+      res.status(200).json(updateResult.rows[0]);
+    } else {
+      // Add the new item to the cart
+      const queryText = 'INSERT INTO ShoppingCartItems (CartID, ProductID, Quantity) VALUES ($1, $2, $3) RETURNING *';
+      const queryValues = [cartId, productId, quantity];
+      const itemResult = await pool.query(queryText, queryValues);
+      console.log('Item added to cart:', itemResult.rows[0]);
+      res.status(201).json(itemResult.rows[0]);
+    }
   } catch (err) {
     console.error('Error adding item to cart:', err.message);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+
+// Update cart item quantity
+app.put('/api/cart/update', async (req, res) => {
+  const { cartItemId, quantity } = req.body;
+  try {
+    // Update the quantity
+    await pool.query('UPDATE ShoppingCartItems SET Quantity = $1 WHERE CartItemID = $2', [quantity, cartItemId]);
+
+    // Return the full updated cart item details
+    const result = await pool.query(`
+      SELECT sci.cartitemid, sci.productid, sci.quantity, p.name, p.price, p.imageurl
+      FROM ShoppingCartItems sci
+      JOIN Products p ON sci.productid = p.productid
+      WHERE sci.cartitemid = $1
+    `, [cartItemId]);
+
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// Remove cart item
+app.delete('/api/cart/remove/:cartItemId', async (req, res) => {
+  const { cartItemId } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM ShoppingCartItems WHERE CartItemID = $1 RETURNING *', [cartItemId]);
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
@@ -103,6 +146,118 @@ app.post('/api/staff/signin', async (req, res) => {
     const staff = result.rows[0];
     req.session.staffId = staff.staffid;
     res.status(200).json({ staffId: staff.staffid, name: staff.name });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.get('/api/products', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM Products');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.get('/api/cart/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT sci.cartitemid, sci.productid, sci.quantity, p.name, p.price, p.imageurl
+      FROM ShoppingCartItems sci
+      JOIN Products p ON sci.productid = p.productid
+      JOIN ShoppingCart sc ON sci.cartid = sc.cartid
+      WHERE sc.customerid = $1
+    `, [customerId]);
+    const parsedResult = result.rows.map(row => ({
+      ...row,
+      price: parseFloat(row.price) // Ensure price is a number
+    }));
+    res.status(200).json(parsedResult);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.get('/api/user/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  try {
+    const result = await pool.query('SELECT Name, Email, PreferredShippingAddress, PreferredPaymentMethod FROM Customers WHERE CustomerID = $1', [customerId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.put('/api/user/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  const { preferredShippingAddress, preferredPaymentMethod } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE Customers SET PreferredShippingAddress = $1, PreferredPaymentMethod = $2 WHERE CustomerID = $3 RETURNING *',
+      [preferredShippingAddress, preferredPaymentMethod, customerId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.post('/api/account/address', async (req, res) => {
+  const { customerId, addressType, streetAddress, city, state, zipCode, country } = req.body;
+  try {
+    const queryText = `
+      INSERT INTO Addresses (CustomerID, AddressType, StreetAddress, City, State, ZipCode, Country)
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING AddressID
+    `;
+    const queryValues = [customerId, addressType, streetAddress, city, state, zipCode, country];
+    const result = await pool.query(queryText, queryValues);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error adding address:', err.message);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// Add new credit card
+app.post('/api/account/credit-card', async (req, res) => {
+  const { customerId, cardNumber, expiryDate, cvv, paymentAddressId } = req.body;
+  try {
+    const queryText = `
+      INSERT INTO CreditCards (CustomerID, CardNumber, ExpiryDate, CVV, PaymentAddressID)
+      VALUES ($1, $2, $3, $4, $5) RETURNING CardID
+    `;
+    const queryValues = [customerId, cardNumber, expiryDate, cvv, paymentAddressId];
+    const result = await pool.query(queryText, queryValues);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error adding credit card:', err.message);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.get('/api/account/addresses/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  try {
+    const result = await pool.query('SELECT AddressID, AddressType, StreetAddress, City, State, ZipCode, Country FROM Addresses WHERE CustomerID = $1', [customerId]);
+    res.status(200).json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.get('/api/account/credit-cards/:customerId', async (req, res) => {
+  const { customerId } = req.params;
+  try {
+    const result = await pool.query('SELECT CardID, CardNumber, ExpiryDate, PaymentAddressID FROM CreditCards WHERE CustomerID = $1', [customerId]);
+    res.status(200).json(result.rows);
   } catch (err) {
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
 import StaffSignIn from './StaffSignIn';
 import './Staff.css';
 
-const Staff = ({ products }) => {
+const Staff = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [products, setProducts] = useState([]);
 
   const handleSignIn = (staff) => {
     setIsAuthenticated(true);
@@ -14,6 +15,20 @@ const Staff = ({ products }) => {
   const handleSignOut = () => {
     setIsAuthenticated(false);
   };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <div className="staff-container">

@@ -10,33 +10,15 @@ import Staff from './Staff';
 import './App.css';
 
 const App = () => {
-  const [products, setProducts] = useState([
-    {
-      productid: 1,
-      imageurl: 'path/to/image1.jpg',
-      title: 'Product 1',
-      price: 49.99,
-      description: 'Product description goes here',
-    },
-    {
-      productid: 2,
-      imageurl: 'path/to/image2.jpg',
-      title: 'Product 2',
-      price: 49.99,
-      description: 'Product description goes here',
-    },
-    // Add more initial products here if needed
-  ]);
-
-  const [customerId, setCustomerId] = useState(null); // Initialize customerId to null
+  const [customerId, setCustomerId] = useState(null);
 
   const handleCustomerSignIn = (data) => {
     console.log('Customer sign in successful', data);
-    setCustomerId(data.userId); // Update customerId with the signed-in user's ID
+    setCustomerId(data.userId);
   };
 
   const handleSignOut = () => {
-    setCustomerId(null); // Clear the customerId on sign-out
+    setCustomerId(null);
   };
 
   return (
@@ -44,12 +26,12 @@ const App = () => {
       <div className="app-container">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home products={products} customerId={customerId} />} />
+          <Route path="/" element={<Home customerId={customerId} />} />
           <Route path="/cart" element={<Cart customerId={customerId} />} />
           <Route path="/signin" element={<CustomerSignIn title="User Sign In" onSignIn={handleCustomerSignIn} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/account" element={<Account customerId={customerId} onSignOut={handleSignOut} />} />
-          <Route path="/staff" element={<Staff products={products} />} />
+          <Route path="/staff" element={<Staff />} />
         </Routes>
       </div>
     </Router>
