@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { getCartItems, removeItemFromCart, addItemToCart, updateCartItemQuantity } from './api';
+import { getCartItems, removeItemFromCart, updateCartItemQuantity, getAddresses, getCreditCards, createOrder, getUserInfo } from './api';
 import './Cart.css';
 
 const Cart = ({ customerId }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [creditCards, setCreditCards] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState('');
+  const [selectedCard, setSelectedCard] = useState('');
 
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
         const items = await getCartItems(customerId);
-        // Ensure price is a number
         const parsedItems = items.map(item => ({
           ...item,
           price: parseFloat(item.price) // Ensure price is a number
@@ -19,7 +22,36 @@ const Cart = ({ customerId }) => {
         console.error('Error fetching cart items', error);
       }
     };
+
+    const fetchAddressesAndCards = async () => {
+      try {
+        const [addresses, creditCards, userInfo] = await Promise.all([
+          getAddresses(customerId),
+          getCreditCards(customerId),
+          getUserInfo(customerId) // Fetch user information including preferred address and card
+        ]);
+        setAddresses(addresses);
+        setCreditCards(creditCards);
+
+        // Set default selected address and card to preferred ones
+        if (userInfo.preferredshippingaddress) {
+          setSelectedAddress(userInfo.preferredshippingaddress);
+        } else if (addresses.length > 0) {
+          setSelectedAddress(addresses[0].addressid);
+        }
+
+        if (userInfo.preferredpaymentmethod) {
+          setSelectedCard(userInfo.preferredpaymentmethod);
+        } else if (creditCards.length > 0) {
+          setSelectedCard(creditCards[0].cardid);
+        }
+      } catch (error) {
+        console.error('Error fetching addresses or credit cards', error);
+      }
+    };
+
     fetchCartItems();
+    fetchAddressesAndCards();
   }, [customerId]);
 
   const handleRemoveItem = async (cartItemId) => {
@@ -34,11 +66,20 @@ const Cart = ({ customerId }) => {
   const handleQuantityChange = async (cartItemId, newQuantity) => {
     try {
       const updatedItem = await updateCartItemQuantity(cartItemId, newQuantity);
-      // Ensure the updated item has price as a number
       updatedItem.price = parseFloat(updatedItem.price);
       setCartItems(cartItems.map(item => item.cartitemid === updatedItem.cartitemid ? updatedItem : item));
     } catch (error) {
       console.error('Error updating cart item quantity', error);
+    }
+  };
+
+  const handleCreateOrder = async () => {
+    try {
+      await createOrder(customerId, selectedAddress, selectedCard, cartItems);
+      alert('Order created successfully!');
+      setCartItems([]);
+    } catch (error) {
+      console.error('Error creating order', error);
     }
   };
 
@@ -61,6 +102,34 @@ const Cart = ({ customerId }) => {
             </div>
           </div>
         ))}
+      </div>
+      <div className="checkout-section">
+        <h3>Checkout</h3>
+        <div>
+          <label>
+            Select Shipping Address:
+            <select value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)}>
+              {addresses.map((address) => (
+                <option key={address.addressid} value={address.addressid}>
+                  {`${address.streetaddress}, ${address.city}, ${address.state} ${address.zipcode}, ${address.country}`}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Select Credit Card:
+            <select value={selectedCard} onChange={(e) => setSelectedCard(e.target.value)}>
+              {creditCards.map((card) => (
+                <option key={card.cardid} value={card.cardid}>
+                  {`Card ending in ${card.cardnumber.slice(-4)}`}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <button onClick={handleCreateOrder}>Create Order</button>
       </div>
     </div>
   );

@@ -103,7 +103,6 @@ app.post('/api/cart/add', async (req, res) => {
   }
 });
 
-
 // Update cart item quantity
 app.put('/api/cart/update', async (req, res) => {
   const { cartItemId, quantity } = req.body;
@@ -183,11 +182,14 @@ app.get('/api/cart/:customerId', async (req, res) => {
 app.get('/api/user/:customerId', async (req, res) => {
   const { customerId } = req.params;
   try {
-    const result = await pool.query('SELECT Name, Email, PreferredShippingAddress, PreferredPaymentMethod FROM Customers WHERE CustomerID = $1', [customerId]);
+    const result = await pool.query('SELECT Name, Email, PreferredShippingAddress, PreferredPaymentMethod, Balance FROM Customers WHERE CustomerID = $1', [customerId]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
-    res.status(200).json(result.rows[0]);
+    res.status(200).json({
+      ...result.rows[0],
+      balance: parseFloat(result.rows[0].balance) // Ensure balance is a number
+    });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }
@@ -239,7 +241,7 @@ app.post('/api/account/credit-card', async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error adding credit card:', err.message);
-    res.status(500).json({ error: 'Internal server error', details: err.message });
+    res.status (500).json({ error: 'Internal server error', details: err.message });
   }
 });
 
@@ -262,6 +264,114 @@ app.get('/api/account/credit-cards/:customerId', async (req, res) => {
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
+
+// Create new order
+app.post('/api/orders', async (req, res) => {
+  const { customerId, addressId, cardId, cartItems } = req.body;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const orderTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    const orderResult = await client.query(`
+      INSERT INTO Orders (CustomerID, OrderDate, Status, Total, PaymentCardID)
+      VALUES ($1, NOW(), 'Pending', $2, $3) RETURNING OrderID
+    `, [customerId, orderTotal, cardId]);
+
+    const orderId = orderResult.rows[0].orderid;
+
+    const orderDetailsPromises = cartItems.map(item =>
+      client.query(`
+        INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Price)
+        VALUES ($1, $2, $3, $4)
+      `, [orderId, item.productid, item.quantity, item.price])
+    );
+
+    await Promise.all(orderDetailsPromises);
+
+    await client.query('DELETE FROM ShoppingCartItems WHERE CartID IN (SELECT CartID FROM ShoppingCart WHERE CustomerID = $1)', [customerId]);
+
+    // Update customer's balance
+    await client.query(`
+      UPDATE Customers SET Balance = Balance + $1 WHERE CustomerID = $2
+    `, [orderTotal, customerId]);
+
+    await client.query('COMMIT');
+    res.status(201).json({ orderId });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+app.delete('/api/account/address/:addressId', async (req, res) => {
+  const { addressId } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM Addresses WHERE AddressID = $1 RETURNING *', [addressId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Address not found' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// Delete credit card
+app.delete('/api/account/credit-card/:cardId', async (req, res) => {
+  const { cardId } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM CreditCards WHERE CardID = $1 RETURNING *', [cardId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Credit card not found' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// New endpoint to pay balance using a credit card
+app.post('/api/pay-balance', async (req, res) => {
+  const { customerId, amount, cardId } = req.body;
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Log input values
+    console.log(`CustomerID: ${customerId}, Amount: ${amount}, CardID: ${cardId}`);
+
+    // Ensure the card belongs to the customer
+    const cardResult = await client.query('SELECT * FROM CreditCards WHERE CardID = $1 AND CustomerID = $2', [cardId, customerId]);
+    if (cardResult.rows.length === 0) {
+      throw new Error('Credit card not found or does not belong to the customer');
+    }
+    console.log('Credit card validated.');
+
+    // Deduct the amount from the balance
+    const balanceResult = await client.query('UPDATE Customers SET Balance = Balance - $1 WHERE CustomerID = $2 RETURNING Balance', [amount, customerId]);
+    if (balanceResult.rows.length === 0) {
+      throw new Error('Failed to update balance.');
+    }
+
+    // Log balance update result
+    console.log(`New Balance: ${balanceResult.rows[0].balance}`);
+
+    await client.query('COMMIT');
+    res.status(200).json({ newBalance: balanceResult.rows[0].balance });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error paying balance:', err.message);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  } finally {
+    client.release();
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);

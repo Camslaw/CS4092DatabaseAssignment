@@ -99,3 +99,29 @@ export const getCreditCards = async (customerId) => {
   const response = await axios.get(`${API_URL}/api/account/credit-cards/${customerId}`);
   return response.data;
 };
+
+export const createOrder = async (customerId, addressId, cardId, cartItems) => {
+  const response = await axios.post(`${API_URL}/api/orders`, { customerId, addressId, cardId, cartItems });
+  return response.data;
+};
+
+export const deleteAddress = async (addressId) => {
+  const response = await axios.delete(`${API_URL}/api/account/address/${addressId}`);
+  return response.data;
+};
+
+export const deleteCreditCard = async (cardId) => {
+  const response = await axios.delete(`${API_URL}/api/account/credit-card/${cardId}`);
+  return response.data;
+};
+
+export const payBalance = async (customerId, amount, cardId) => {
+  const response = await axios.post(`${API_URL}/api/pay-balance`, {
+    customerId,
+    amount,
+    cardId
+  });
+  return response.data;
+};
+
+

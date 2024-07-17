@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUserInfo, updateUserInfo, signOut, addAddress, addCreditCard, getAddresses, getCreditCards } from './api';
+import { getUserInfo, updateUserInfo, signOut, addAddress, addCreditCard, getAddresses, getCreditCards, deleteAddress, deleteCreditCard, payBalance } from './api';
 import './Account.css';
 import { Navigate } from 'react-router-dom';
 
@@ -7,8 +7,6 @@ const Account = ({ customerId, onSignOut }) => {
   const [userInfo, setUserInfo] = useState({});
   const [preferredShippingAddress, setPreferredShippingAddress] = useState('');
   const [preferredPaymentMethod, setPreferredPaymentMethod] = useState('');
-  const [addresses, setAddresses] = useState([]);
-  const [creditCards, setCreditCards] = useState([]);
   const [message, setMessage] = useState('');
   const [address, setAddress] = useState({
     addressType: '',
@@ -24,6 +22,10 @@ const Account = ({ customerId, onSignOut }) => {
     cvv: '',
     paymentAddressId: ''
   });
+  const [addresses, setAddresses] = useState([]);
+  const [creditCards, setCreditCards] = useState([]);
+  const [payAmount, setPayAmount] = useState('');
+  const [selectedCard, setSelectedCard] = useState('');
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -36,28 +38,22 @@ const Account = ({ customerId, onSignOut }) => {
         console.error('Error fetching user information', error);
       }
     };
-    
-    const fetchAddresses = async () => {
-      try {
-        const fetchedAddresses = await getAddresses(customerId);
-        setAddresses(fetchedAddresses);
-      } catch (error) {
-        console.error('Error fetching addresses', error);
-      }
-    };
 
-    const fetchCreditCards = async () => {
+    const fetchAddressesAndCards = async () => {
       try {
-        const fetchedCreditCards = await getCreditCards(customerId);
-        setCreditCards(fetchedCreditCards);
+        const [addresses, creditCards] = await Promise.all([
+          getAddresses(customerId),
+          getCreditCards(customerId)
+        ]);
+        setAddresses(addresses);
+        setCreditCards(creditCards);
       } catch (error) {
-        console.error('Error fetching credit cards', error);
+        console.error('Error fetching addresses or credit cards', error);
       }
     };
 
     fetchUserInfo();
-    fetchAddresses();
-    fetchCreditCards();
+    fetchAddressesAndCards();
   }, [customerId]);
 
   const handleUpdate = async () => {
@@ -101,8 +97,8 @@ const Account = ({ customerId, onSignOut }) => {
         zipCode: '',
         country: ''
       });
-      const fetchedAddresses = await getAddresses(customerId);
-      setAddresses(fetchedAddresses);
+      const updatedAddresses = await getAddresses(customerId);
+      setAddresses(updatedAddresses);
     } catch (err) {
       console.error('Failed to add address:', err);
     }
@@ -119,10 +115,48 @@ const Account = ({ customerId, onSignOut }) => {
         cvv: '',
         paymentAddressId: ''
       });
-      const fetchedCreditCards = await getCreditCards(customerId);
-      setCreditCards(fetchedCreditCards);
+      const updatedCreditCards = await getCreditCards(customerId);
+      setCreditCards(updatedCreditCards);
     } catch (err) {
       console.error('Failed to add credit card:', err);
+    }
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      await deleteAddress(addressId);
+      setAddresses(addresses.filter(address => address.addressid !== addressId));
+    } catch (err) {
+      console.error('Failed to delete address:', err);
+    }
+  };
+
+  const handleDeleteCreditCard = async (cardId) => {
+    try {
+      await deleteCreditCard(cardId);
+      setCreditCards(creditCards.filter(card => card.cardid !== cardId));
+    } catch (err) {
+      console.error('Failed to delete credit card:', err);
+    }
+  };
+
+  const handlePayBalance = async (e) => {
+    e.preventDefault();
+    if (!payAmount || !selectedCard) {
+      alert('Please enter the amount and select a credit card.');
+      return;
+    }
+
+    try {
+      await payBalance(customerId, parseFloat(payAmount), selectedCard);
+      alert('Balance paid successfully!');
+      const updatedUserInfo = await getUserInfo(customerId);
+      setUserInfo(updatedUserInfo);
+      setPayAmount('');
+      setSelectedCard(creditCards.length > 0 ? creditCards[0].cardid : '');
+    } catch (error) {
+      console.error('Failed to pay balance:', error);
+      alert('Failed to pay balance');
     }
   };
 
@@ -136,27 +170,24 @@ const Account = ({ customerId, onSignOut }) => {
       <div className="account-info">
         <p><strong>Name:</strong> {userInfo.name}</p>
         <p><strong>Email:</strong> {userInfo.email}</p>
+        <p><strong>Balance:</strong> ${userInfo.balance ? userInfo.balance.toFixed(2) : '0.00'}</p>
       </div>
       <div className="account-update">
         <label>
           Preferred Shipping Address:
-          <select value={preferredShippingAddress} onChange={(e) => setPreferredShippingAddress(e.target.value)}>
-            {addresses.map((address) => (
-              <option key={address.addressid} value={address.streetaddress}>
-                {`${address.addressType}, ${address.streetaddress}, ${address.city}, ${address.state}, ${address.zipcode}, ${address.country}`}
-              </option>
-            ))}
-          </select>
+          <input
+            type="text"
+            value={preferredShippingAddress}
+            onChange={(e) => setPreferredShippingAddress(e.target.value)}
+          />
         </label>
         <label>
           Preferred Payment Method:
-          <select value={preferredPaymentMethod} onChange={(e) => setPreferredPaymentMethod(e.target.value)}>
-            {creditCards.map((card) => (
-              <option key={card.cardid} value={card.cardnumber}>
-                {`Card ending in ${card.cardnumber.slice(-4)}, Expires ${card.expirydate}`}
-              </option>
-            ))}
-          </select>
+          <input
+            type="text"
+            value={preferredPaymentMethod}
+            onChange={(e) => setPreferredPaymentMethod(e.target.value)}
+          />
         </label>
         <button onClick={handleUpdate}>Update Information</button>
         {message && <p>{message}</p>}
@@ -171,6 +202,15 @@ const Account = ({ customerId, onSignOut }) => {
         <input type="text" name="country" value={address.country} onChange={handleAddressChange} placeholder="Country" required />
         <button type="submit">Add Address</button>
       </form>
+      <h3>Saved Addresses</h3>
+      <ul>
+        {addresses.map(address => (
+          <li key={address.addressid}>
+            {`${address.streetaddress}, ${address.city}, ${address.state} ${address.zipcode}, ${address.country}`}
+            <button onClick={() => handleDeleteAddress(address.addressid)}>Delete</button>
+          </li>
+        ))}
+      </ul>
       <h2>Add Credit Card</h2>
       <form onSubmit={handleCreditCardSubmit} className="account-form">
         <input type="text" name="cardNumber" value={creditCard.cardNumber} onChange={handleCreditCardChange} placeholder="Card Number" required />
@@ -179,6 +219,46 @@ const Account = ({ customerId, onSignOut }) => {
         <input type="text" name="paymentAddressId" value={creditCard.paymentAddressId} onChange={handleCreditCardChange} placeholder="Payment Address ID" required />
         <button type="submit">Add Credit Card</button>
       </form>
+      <h3>Saved Credit Cards</h3>
+      <ul>
+        {creditCards.map(card => (
+          <li key={card.cardid}>
+            {`Card ending in ${card.cardnumber.slice(-4)}`}
+            <button onClick={() => handleDeleteCreditCard(card.cardid)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+      <div className="pay-balance">
+        <h3>Pay Balance</h3>
+        <form onSubmit={handlePayBalance}>
+          <div>
+            <label>
+              Amount to Pay:
+              <input
+                type="number"
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              Select Credit Card:
+              <select
+                value={selectedCard}
+                onChange={(e) => setSelectedCard(e.target.value)}
+                required
+              >
+                {creditCards.map(card => (
+                  <option key={card.cardid} value={card.cardid}>
+                    {`Card ending in ${card.cardnumber.slice(-4)}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <button type="submit">Pay</button>
+        </form>
+      </div>
       <button onClick={handleSignOut} className="signout-button">Sign Out</button>
     </div>
   );
