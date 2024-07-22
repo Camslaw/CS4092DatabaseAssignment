@@ -197,3 +197,113 @@ VALUES (1), (2), (3), (4);
 -- 10. Add product to cart
 INSERT INTO ShoppingCartItems (CartID, ProductID, Quantity)
 VALUES (1, 1, 2), (2, 2, 1);
+
+-- Product Images -----------------------------------------------------------
+INSERT INTO Products (Name, Category, Type, Brand, Size, Description, Price, ImageURL) VALUES
+--Headphones-----------------------------------------------------	
+  ('Blast Headphones', 'Headphones', 'Type 3', 'Symphonized', 'Large', 'Black and Red + wireless + adjustable ', 40.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\blk_red.webp"'),
+	
+  ('G Headphones', 'Headphones', 'Type 4', 'G', 'Medium', 'Black and Red + Adjustable + Mic', 25.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\G_blk_red.webp"' ),
+	
+  ('JBL Headphones', 'Headphones', 'Type 5', 'JBL', 'Adjustable Medium', 'Black + Soundproof + wireless + charger', 40.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\jbl.webp"'),
+	
+  ('Zone Vibe 125', 'Headphones', 'Type 6', 'Logitech', 'Medium', 'Lightweight+ wireless headphones with USB receiver', 130.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\logi.webp"'),
+	
+  ('Logitech G PRO Gaming Headset', 'Headphones', 'Type 7', 'Logitech', 'Medium', 'Wireless + Lighweight + Black + mic', 120.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\logi_blk.webp"'),
+  
+  ('Zone Vibe 100', 'Headphones', 'Type 8', 'Logitech', 'Large', 'Lightweight + Wireless + Pink', 100.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\logi_pink.webp"'),
+	
+  ('Sony - Extra Bass Over-the-Ear Headphones - Blue', 'Headphones', 'Type 9', 'Sony', 'Large', 'Blue + Wireless + Charger ', 133.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\sony_blue.webp"'),
+	
+  ('Wireless Gaming Headset', 'Headphones', 'Type 10', 'Kotion', 'Normal', 'Black + Blue + Wireless', 20.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\headphones\spyder.webp"'),
+
+-- Keyboards-----------------------------------------------------------------------------------------
+	('Mechanical Keyboard', 'Keyboards', 'Type 11', 'MageGee', 'Compact', 'Black + Grey + Orange + Blue light + Cable', 35.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\BG_blueLs.webp"'),
+	
+    ('Mechanical Keyboard', 'Keyboards', 'Type 12', 'MageGee', 'Compact','Grey + Black + Blue light + Cabel', 35.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\BG_blueLs.webp"' ),
+	
+    ('Black wide Keyboard', 'Keyboards', 'Type 13', 'Redragon', 'Normal','Long and Wide', 'Black + Multi Color lights  + Number keypad + Cabel', 40.00,'"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\black_multi_colorLs.webp"'),
+	
+    ('White & Black Keyboard', 'Keyboards', 'Type 14', 'AULA', 'Long','White base + Black keys + Multicolor lights + Mouse + Number keypad + Cabel', 50.00,'"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\BLK_MultiLS_pack.webp"'),
+	
+    ('Mechanical Keyboard', 'Keyboards', 'Type 15', 'MageGee', 'Compact', 'White + Ice Blue + Blue Light + Cabel', 27.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\ice_blue.webp"'),
+	
+    ('Mechanical Keyboard', 'Keyboards', 'Type 16', 'Camisyn', 'Compact', 'White + Black + Blue + Blue Light + Cabel', 20.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\mech_GBB.webp"'),
+	
+    ('Mechanical Keyboard', 'Keyboards', 'Type 17', 'MageGee', 'Compact', 'Orange + Grey + Black + White + Cabel + light ',133.00,'"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\mech_WBO.webp"'),
+	
+    ('Mechanical Keyboard', 'Keyboards', 'Type 18', 'Camisyn', 'Compact', 'Red + Grey + Black + Cabel', 25.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\mechanical_red.webp"'),
+
+	('KNOWSQT  Keyboard + Mouse', 'Keyboards', 'Type 19', 'KNOWSQT', 'Normal', 'Brown + White + Tan + Mouse + USB', 30.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\neutrals_pack.webp"'),
+	
+	('White Boared Keyboard', 'Keyboards', 'Type 20', 'YSCP', 'Long', 'White + Grey lining + White & Purple light', 20.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\white_circular_blueLs.webp"'),
+	
+	('Full White Keyboard', 'Keyboards', 'Type 21', 'HUO JI', 'Compact','All White Keys and Base', 20.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\white_keys.webp"'),
+	
+	('Bee Keyboard + Mouse', 'Keyboards', 'Type 22', 'MageGee', 'Compact', 'Yellow Base + Black + White', 20.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\keyboards\yell_pack.webp"'),
+	
+-- Monitors -------------------------------------------------------------------------------------
+	
+	('LG Ultra Gear', 'Monitors', 'Type 23', 'LG', '49-inch', '49-inch Dual QHD (5129x1440) curved (1000R) monitor with an ultra-wide 32:9 aspect ratio ', 200.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\monitors\LG_ultragear.webp"'),
+	
+    ('LG Ultra Wide', 'Monitors', 'Type 24', 'LG', '34 - inch', '34" UltraWide FHD HDR Monitor with FreeSync', 140.00 '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\monitors\LG_ultrawide.webp"'),
+	
+	('Odyssey G9', 'Monitors', 'Type 25', 'Samsung', '49 - inch', '49" Odyssey G9 G95C DQHD 240Hz 1ms(GtG) DisplayHDR 1000 Curved Gaming Monitor', 190.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\monitors\odyssey_g9.webp"'),
+    
+	('Odyssey G5', 'Monitors', 'Type 26', 'Samsung', '27 - inch', '27" Odyssey G55C QHD 165Hz 1ms(MPRT) Curved Gaming Monitor', 140.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\monitors\samsung_odyseey_g5.webp"'),
+	
+	('Odyssey G3', 'Monitors', 'Type 27', 'Samsung', '24 - inch', '24-Inch FHD 1080p Gaming Monitor, 144Hz, 1ms, 3-sided border-less, VESA Compatible, Height Adjustable Stand, FreeSync Premium', 200.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\monitors\samsung_odyssey_g3.webp"'),
+	
+	('Odyssey G7', 'Monitors', 'Type 28', 'Samsung', '27 - inch', 'SAMSUNG 27" Odyssey G7 Series WQHD (2560x1440) Gaming Monitor, 240Hz, Curved, 1ms, HDMI, G-Sync, FreeSync Premium Pro', 180.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\monitors\samsung_odyssey_g7.webp"'),
+
+-- Mouse ------------------------------------------------------------------------------------------
+	('TSV MO6 Gaming Mouse', 'Mouse', 'Type 29', 'TSV', 'Normal', 'Black + Multicolor Logo + USB', 20.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\batman_multi.webp"'),
+	
+	('Dell Cabel Mouse', 'Mouse', 'Type 30', 'Dell', 'Normal', 'Black + Cabel', 15.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\dell.webp"'),
+	
+	('Logitech Black Mouse', 'Mouse', 'Type 31', 'Logitech', 'Normal', 'Black + USB', 20.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\logi_black.webp"'),
+	
+	('Logitech Performance Mouse', 'Mouse', 'Type 32', 'Logitech', 'Normal', 'Side handle + Black + Grey + USB', 45.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\logi_blk_grey.webp"'),
+	
+	('Logitech Standard Mouse', 'Mouse', 'Type 33', 'Logitech', 'Normal', 'Black + Grey + USB', 18.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\logi_blk_grey_reg.webp"'),
+	
+	('Logitech Wireless Mouse Blue', 'Mouse', 'Type 34', 'Logitech', 'Normal', 'Blue + Black + USB', 16.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\logi_blue_blk.webp"'),
+	
+	('Logitech Lift Vertical Ergonomic Mouse', 'Mouse', 'Type 35', 'Logitech', 'Normal', 'Pink + Side Handle + USB', 50.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\Logi_pink.webp"'),
+	
+	('Logitech Wireless Mouse Red', 'Mouse', 'Type 36', 'Logitech', 'Normal', 'Red + Black + USB', 18.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\logi_red_blk.webp"'),
+	
+	('Teal SEENDA Mouse', 'Mouse', 'Type 37', 'SEENDA', 'Normal', ' Teal + USB', 15.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Mouse\teal.webp"'),
+-- REST Pads----------------------------------------------------------------------------------------------------------------	
+	('Mouse & Keyboard Rest Pad', 'Rest Pads', 'Type 38', 'Bonison', '17- inch Long', 'Black + 17 in. long', 12.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\rests\blk_arm_wrist.webp"'),
+	
+	('Pink Clouds Pads Keyboard and wrist', 'Rests Pads', 'Type 39', 'RAOVCUS', '16.9 inch long', '16.9 inch x 4.33 inch', 24.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\rests\pink_cloud.webp"'),
+	
+	('Purple Clouds Pads Keyboard and wrist', 'Rests Pads', 'Type 40', 'WMM', '16.5 inch long', 'Light Purple + 16.5 inch x 4.3 inch', 23.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\rests\purple_cloud.webp"'),
+	
+	('Memory Foam Wrist Pad', 'Rest Pads' 'Type 41', 'BRILA', '5.1 inch', 'Black + 5.1 inch + Non-slip support', 10.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\rests\wrist.webp"'),
+-- Keybaord Skins	
+	('Bright Pink KeyBoard Skin', 'Skins', 'Type 42', 'Kuzy', '13 inch and 15 inch', 'Bright Pink + Silicone', 9.00 '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\bright_pink.webp"'),
+	
+	('Clear Black Key Skin', 'Skins', 'Type 43', 'EBAY', '15.6 inch', 'Clear base skin+ Black keys skin + Silicone', 8.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\clear_and_black.webp"'),
+	
+	('Transparent Clear Skin', 'Skins', 'Type 44', 'Lapogy', '14 inch', 'Clear + Silicone', 7.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\clear_skin.webp"'),
+	
+	('Multi Color Skin', 'Skins', 'Type 45', 'Kuzy', '15 inch', 'Multi Color + Silicone', 12.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\multi_color.webp"'),
+
+	('Ombre Blue Skin', 'Skins', 'Type 46', 'CaseBuy', '11 - 11.6 inch', 'Ombre Navy blue to white + Silicon', 7.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\ombre_blue.webp"'),
+
+	('Ombre Light Blue Skin', 'Skins', 'Type 47', 'CaseBuy', '14 inch', 'Ombre Ice blue to white + Silicone', 7.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\ombre_light_blue.webp"'),
+
+	('Light Pink Ombre Skin', 'Skins', 'Type 48', 'CaseBuy', '14 inch', 'Ombre Light pink to white + Silicone', 7.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\ombre_pink.webp"'),
+	
+	('Lavendar Purple Ombre Skin', 'Skins', 'Type 31', 'Casebuy', '14 inch', 'Ombre Light purple to white + Silicone', 0.00, '"C:\Users\mesco\OneDrive - University of Cincinnati\CS4092DatabaseAssignment\App\react-app\src\images\products\Skins\ombre_purple.webp"');
+UPDATE Products
+	SET ImageURL = 'http://localhost:3000/images/headphones/beats.webp'
+	Where ProductID=3;
+Select * From Products
+DROP TABLE Products
+
+
+
+
