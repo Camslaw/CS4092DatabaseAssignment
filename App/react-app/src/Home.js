@@ -5,6 +5,8 @@ import './Home.css';
 
 const Home = ({ customerId }) => {
   const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -12,6 +14,7 @@ const Home = ({ customerId }) => {
         const response = await fetch('http://localhost:3001/api/products');
         const data = await response.json();
         setProducts(data);
+        setFilteredProducts(data);
       } catch (err) {
         console.error('Error fetching products:', err);
       }
@@ -29,13 +32,30 @@ const Home = ({ customerId }) => {
     }
   };
 
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    const filtered = products.filter(product =>
+      product.type.toLowerCase().includes(query)
+    );
+    setFilteredProducts(filtered);
+  };
+
   return (
     <div className="home-container">
       <h1>Welcome to Tech Wave</h1>
       <p>This is the home page.</p>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search by product type..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </div>
       <h2>Our Products</h2>
       <div className="product-grid">
-        {products.map((product, index) => (
+        {filteredProducts.map((product, index) => (
           <ProductCard
             key={index}
             image={product.imageurl}

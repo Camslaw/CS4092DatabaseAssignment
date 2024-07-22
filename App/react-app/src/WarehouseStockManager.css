@@ -1,0 +1,28 @@
+.warehouse-stock-manager {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+  }
+  
+  .warehouse-stock-manager label {
+    margin-right: 10px;
+  }
+  
+  .warehouse-stock-manager select,
+  .warehouse-stock-manager input {
+    margin-right: 10px;
+  }
+  
+  .warehouse-stock-manager button {
+    background-color: var(--sec-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .warehouse-stock-manager button:hover {
+    background-color: var(--tri-color);
+  }
+  

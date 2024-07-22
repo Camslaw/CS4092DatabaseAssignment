@@ -158,6 +158,44 @@ app.get('/api/products', async (req, res) => {
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
+ 
+app.post('/api/products', async (req, res) => {
+  const { title, price, description, imageurl } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO Products (title, price, description, imageurl) VALUES ($1, $2, $3, $4) RETURNING *',
+      [title, price, description, imageurl]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.put('/api/products/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, price, description, imageurl } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE Products SET title = $1, price = $2, description = $3, imageurl = $4 WHERE productid = $5 RETURNING *',
+      [title, price, description, imageurl, id]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+app.delete('/api/products/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM Products WHERE productid = $1', [id]);
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
 
 app.get('/api/cart/:customerId', async (req, res) => {
   const { customerId } = req.params;
@@ -371,6 +409,31 @@ app.post('/api/pay-balance', async (req, res) => {
     client.release();
   }
 });
+
+app.get('/api/warehouses', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM Warehouses');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+
+app.post('/api/warehouses/:warehouseId/products', async (req, res) => {
+  const { warehouseId } = req.params;
+  const { productId, quantity } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO Stock (WarehouseID, ProductID, Quantity) VALUES ($1, $2, $3) ON CONFLICT (WarehouseID, ProductID) DO UPDATE SET Quantity = Stock.Quantity + $3 RETURNING *',
+      [warehouseId, productId, quantity]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
 
 
 app.listen(port, () => {

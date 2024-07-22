@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import ProductCard from './ProductCard';
+import StaffProductCard from './StaffProductCard';
 import StaffSignIn from './StaffSignIn';
+import WarehouseStockManager from './WarehouseStockManager';
 import './Staff.css';
 
 const Staff = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [products, setProducts] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
 
   const handleSignIn = (staff) => {
     setIsAuthenticated(true);
@@ -27,8 +29,84 @@ const Staff = () => {
       }
     };
 
+    const fetchWarehouses = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/warehouses');
+        const data = await response.json();
+        setWarehouses(data);
+      } catch (err) {
+        console.error('Error fetching warehouses:', err);
+      }
+    };
+
     fetchProducts();
+    fetchWarehouses();
   }, []);
+
+  const handleAddProduct = async () => {
+    const newProduct = {
+      title: 'New Product',
+      price: 0.00,
+      description: 'New product description',
+      imageurl: 'path/to/image.jpg',
+    };
+    try {
+      const response = await fetch('http://localhost:3001/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProduct),
+      });
+      const data = await response.json();
+      setProducts((prevProducts) => [...prevProducts, data]);
+    } catch (err) {
+      console.error('Error adding product:', err);
+    }
+  };
+
+  const handleUpdateProduct = async (updatedProduct) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/products/${updatedProduct.productid}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedProduct),
+      });
+      const data = await response.json();
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.productid === data.productid ? data : product
+        )
+      );
+    } catch (err) {
+      console.error('Error updating product:', err);
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await fetch(`http://localhost:3001/api/products/${productId}`, {
+        method: 'DELETE',
+      });
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.productid !== productId)
+      );
+    } catch (err) {
+      console.error('Error deleting product:', err);
+    }
+  };
+
+  const handleAddToWarehouse = async (warehouseId, productId, quantity) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/warehouses/${warehouseId}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity }),
+      });
+      const data = await response.json();
+      console.log('Product added to warehouse:', data);
+    } catch (err) {
+      console.error('Error adding product to warehouse:', err);
+    }
+  };
 
   return (
     <div className="staff-container">
@@ -36,16 +114,26 @@ const Staff = () => {
         <>
           <h1>Staff Dashboard</h1>
           <button onClick={handleSignOut} className="signout-button">Sign Out</button>
+          <button onClick={handleAddProduct} className="add-product-button">Add Product</button>
           <h2>Product Management</h2>
           <div className="product-grid">
             {products.map((product, index) => (
-              <ProductCard
+              <StaffProductCard
                 key={index}
-                image={product.imageurl}
-                title={product.title}
-                price={product.price}
-                description={product.description}
-                showAddToCart={false}
+                product={product}
+                onUpdate={handleUpdateProduct}
+                onDelete={handleDeleteProduct}
+              />
+            ))}
+          </div>
+          <h2>Warehouse Management</h2>
+          <div className="warehouse-grid">
+            {products.map((product, index) => (
+              <WarehouseStockManager
+                key={index}
+                product={product}
+                warehouses={warehouses}
+                onAddToWarehouse={handleAddToWarehouse}
               />
             ))}
           </div>
