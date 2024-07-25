@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import StaffProductCard from './StaffProductCard';
 import StaffSignIn from './StaffSignIn';
 import WarehouseStockManager from './WarehouseStockManager';
+import AddProductForm from './AddProductForm';
+import { deleteProduct } from './api';
 import './Staff.css';
 
 const Staff = () => {
@@ -43,13 +45,7 @@ const Staff = () => {
     fetchWarehouses();
   }, []);
 
-  const handleAddProduct = async () => {
-    const newProduct = {
-      title: 'New Product',
-      price: 0.00,
-      description: 'New product description',
-      imageurl: 'path/to/image.jpg',
-    };
+  const handleAddProduct = async (newProduct) => {
     try {
       const response = await fetch('http://localhost:3001/api/products', {
         method: 'POST',
@@ -83,9 +79,8 @@ const Staff = () => {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      await fetch(`http://localhost:3001/api/products/${productId}`, {
-        method: 'DELETE',
-      });
+      console.log(`Deleting product with id: ${productId}`);
+      await deleteProduct(productId);
       setProducts((prevProducts) =>
         prevProducts.filter((product) => product.productid !== productId)
       );
@@ -114,7 +109,7 @@ const Staff = () => {
         <>
           <h1>Staff Dashboard</h1>
           <button onClick={handleSignOut} className="signout-button">Sign Out</button>
-          <button onClick={handleAddProduct} className="add-product-button">Add Product</button>
+          <AddProductForm onAddProduct={handleAddProduct} />
           <h2>Product Management</h2>
           <div className="product-grid">
             {products.map((product, index) => (

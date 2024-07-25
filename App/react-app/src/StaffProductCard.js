@@ -33,29 +33,71 @@ const StaffProductCard = ({ product, onUpdate, onDelete }) => {
         <>
           <input
             type="text"
-            name="title"
-            value={editedProduct.title}
+            name="name"
+            value={editedProduct.name}
             onChange={handleChange}
+            placeholder="Name"
+          />
+          <input
+            type="text"
+            name="category"
+            value={editedProduct.category}
+            onChange={handleChange}
+            placeholder="Category"
+          />
+          <input
+            type="text"
+            name="type"
+            value={editedProduct.type}
+            onChange={handleChange}
+            placeholder="Type"
+          />
+          <input
+            type="text"
+            name="brand"
+            value={editedProduct.brand}
+            onChange={handleChange}
+            placeholder="Brand"
+          />
+          <input
+            type="text"
+            name="size"
+            value={editedProduct.size}
+            onChange={handleChange}
+            placeholder="Size"
+          />
+          <textarea
+            name="description"
+            value={editedProduct.description}
+            onChange={handleChange}
+            placeholder="Description"
           />
           <input
             type="number"
             name="price"
             value={editedProduct.price}
             onChange={handleChange}
+            placeholder="Price"
           />
-          <textarea
-            name="description"
-            value={editedProduct.description}
+          <input
+            type="text"
+            name="imageurl"
+            value={editedProduct.imageurl}
             onChange={handleChange}
+            placeholder="Image URL"
           />
           <button onClick={handleSaveClick}>Save</button>
           <button onClick={handleCancelClick}>Cancel</button>
         </>
       ) : (
         <>
-          <img src={product.imageurl} alt={product.title} className="product-image" />
+          <img src={product.imageurl} alt={product.name} className="product-image" />
           <div className="product-info">
-            <h3 className="product-title">{product.title}</h3>
+            <h3 className="product-name">{product.name}</h3>
+            <p className="product-category">Category: {product.category}</p>
+            <p className="product-type">Type: {product.type}</p>
+            <p className="product-brand">Brand: {product.brand}</p>
+            <p className="product-size">Size: {product.size}</p>
             <p className="product-price">${product.price}</p>
             <p className="product-description">{product.description}</p>
             <button onClick={handleEditClick}>Edit</button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUserInfo, updateUserInfo, signOut, addAddress, addCreditCard, getAddresses, getCreditCards, deleteAddress, deleteCreditCard, payBalance } from './api';
+import { getUserInfo, updateUserInfo, signOut, addAddress, addCreditCard, getAddresses, getCreditCards, deleteAddress, deleteCreditCard, payBalance, updateAddress, updateCreditCard } from './api';
 import './Account.css';
 import { Navigate } from 'react-router-dom';
 
@@ -26,6 +26,9 @@ const Account = ({ customerId, onSignOut }) => {
   const [creditCards, setCreditCards] = useState([]);
   const [payAmount, setPayAmount] = useState('');
   const [selectedCard, setSelectedCard] = useState('');
+
+  const [editAddress, setEditAddress] = useState(null);
+  const [editCreditCard, setEditCreditCard] = useState(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -82,6 +85,14 @@ const Account = ({ customerId, onSignOut }) => {
 
   const handleCreditCardChange = (e) => {
     setCreditCard({ ...creditCard, [e.target.name]: e.target.value });
+  };
+
+  const handleEditAddressChange = (e) => {
+    setEditAddress({ ...editAddress, [e.target.name]: e.target.value });
+  };
+
+  const handleEditCreditCardChange = (e) => {
+    setEditCreditCard({ ...editCreditCard, [e.target.name]: e.target.value });
   };
 
   const handleAddressSubmit = async (e) => {
@@ -159,6 +170,32 @@ const Account = ({ customerId, onSignOut }) => {
     }
   };
 
+  const handleAddressUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await updateAddress(editAddress.addressid, editAddress);
+      alert('Address updated successfully!');
+      setEditAddress(null);
+      const updatedAddresses = await getAddresses(customerId);
+      setAddresses(updatedAddresses);
+    } catch (err) {
+      console.error('Failed to update address:', err);
+    }
+  };
+
+  const handleCreditCardUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await updateCreditCard(editCreditCard.cardid, editCreditCard);
+      alert('Credit card updated successfully!');
+      setEditCreditCard(null);
+      const updatedCreditCards = await getCreditCards(customerId);
+      setCreditCards(updatedCreditCards);
+    } catch (err) {
+      console.error('Failed to update credit card:', err);
+    }
+  };
+
   if (!customerId) {
     return <Navigate to="/signin" />;
   }
@@ -205,8 +242,23 @@ const Account = ({ customerId, onSignOut }) => {
       <ul>
         {addresses.map(address => (
           <li key={address.addressid}>
-            {`${address.streetaddress}, ${address.city}, ${address.state} ${address.zipcode}, ${address.country}`}
-            <button onClick={() => handleDeleteAddress(address.addressid)}>Delete</button>
+            {editAddress && editAddress.addressid === address.addressid ? (
+              <form onSubmit={handleAddressUpdate} className="account-form">
+                <input type="text" name="addressType" value={editAddress.addressType} onChange={handleEditAddressChange} placeholder="Address Type" required />
+                <input type="text" name="streetAddress" value={editAddress.streetAddress} onChange={handleEditAddressChange} placeholder="Street Address" required />
+                <input type="text" name="city" value={editAddress.city} onChange={handleEditAddressChange} placeholder="City" required />
+                <input type="text" name="state" value={editAddress.state} onChange={handleEditAddressChange} placeholder="State" required />
+                <input type="text" name="zipCode" value={editAddress.zipCode} onChange={handleEditAddressChange} placeholder="Zip Code" required />
+                <input type="text" name="country" value={editAddress.country} onChange={handleEditAddressChange} placeholder="Country" required />
+                <button type="submit">Update Address</button>
+              </form>
+            ) : (
+              <>
+                {`${address.streetaddress}, ${address.city}, ${address.state} ${address.zipcode}, ${address.country}`}
+                <button onClick={() => setEditAddress(address)}>Edit</button>
+                <button onClick={() => handleDeleteAddress(address.addressid)}>Delete</button>
+              </>
+            )}
           </li>
         ))}
       </ul>
@@ -215,15 +267,48 @@ const Account = ({ customerId, onSignOut }) => {
         <input type="text" name="cardNumber" value={creditCard.cardNumber} onChange={handleCreditCardChange} placeholder="Card Number" required />
         <input type="text" name="expiryDate" value={creditCard.expiryDate} onChange={handleCreditCardChange} placeholder="Expiry Date" required />
         <input type="text" name="cvv" value={creditCard.cvv} onChange={handleCreditCardChange} placeholder="CVV" required />
-        <input type="text" name="paymentAddressId" value={creditCard.paymentAddressId} onChange={handleCreditCardChange} placeholder="Payment Address ID" required />
+        <label>
+          Payment Address:
+          <select name="paymentAddressId" value={creditCard.paymentAddressId} onChange={handleCreditCardChange} required>
+            <option value="">Select an address</option>
+            {addresses.map(address => (
+              <option key={address.addressid} value={address.addressid}>
+                {`${address.streetaddress}, ${address.city}, ${address.state} ${address.zipcode}, ${address.country}`}
+              </option>
+            ))}
+          </select>
+        </label>
         <button type="submit">Add Credit Card</button>
       </form>
       <h3>Saved Credit Cards</h3>
       <ul>
         {creditCards.map(card => (
           <li key={card.cardid}>
-            {`Card ending in ${card.cardnumber.slice(-4)}`}
-            <button onClick={() => handleDeleteCreditCard(card.cardid)}>Delete</button>
+            {editCreditCard && editCreditCard.cardid === card.cardid ? (
+              <form onSubmit={handleCreditCardUpdate} className="account-form">
+                <input type="text" name="cardNumber" value={editCreditCard.cardNumber} onChange={handleEditCreditCardChange} placeholder="Card Number" required />
+                <input type="text" name="expiryDate" value={editCreditCard.expiryDate} onChange={handleEditCreditCardChange} placeholder="Expiry Date" required />
+                <input type="text" name="cvv" value={editCreditCard.cvv} onChange={handleEditCreditCardChange} placeholder="CVV" required />
+                <label>
+                  Payment Address:
+                  <select name="paymentAddressId" value={editCreditCard.paymentAddressId} onChange={handleEditCreditCardChange} required>
+                    <option value="">Select an address</option>
+                    {addresses.map(address => (
+                      <option key={address.addressid} value={address.addressid}>
+                        {`${address.streetaddress}, ${address.city}, ${address.state} ${address.zipcode}, ${address.country}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button type="submit">Update Credit Card</button>
+              </form>
+            ) : (
+              <>
+                {`Card ending in ${card.cardnumber.slice(-4)}`}
+                <button onClick={() => setEditCreditCard(card)}>Edit</button>
+                <button onClick={() => handleDeleteCreditCard(card.cardid)}>Delete</button>
+              </>
+            )}
           </li>
         ))}
       </ul>

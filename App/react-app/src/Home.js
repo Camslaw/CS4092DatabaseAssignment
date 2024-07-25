@@ -59,9 +59,13 @@ const Home = ({ customerId }) => {
           <ProductCard
             key={index}
             image={product.imageurl}
-            title={product.title}
-            price={product.price}
+            name={product.name}
+            category={product.category}
+            type={product.type}
+            brand={product.brand}
+            size={product.size}
             description={product.description}
+            price={product.price}
             onAddToCart={handleAddToCart}
             showAddToCart={true}
             productid={product.productid}

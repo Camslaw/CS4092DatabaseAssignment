@@ -160,11 +160,11 @@ app.get('/api/products', async (req, res) => {
 });
  
 app.post('/api/products', async (req, res) => {
-  const { title, price, description, imageurl } = req.body;
+  const { name, category, type, brand, size, description, price, imageurl } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO Products (title, price, description, imageurl) VALUES ($1, $2, $3, $4) RETURNING *',
-      [title, price, description, imageurl]
+      'INSERT INTO Products (name, category, type, brand, size, description, price, imageurl) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [name, category, type, brand, size, description, price, imageurl]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -172,13 +172,14 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
+
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { title, price, description, imageurl } = req.body;
+  const { name, category, type, brand, size, description, price, imageurl } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE Products SET title = $1, price = $2, description = $3, imageurl = $4 WHERE productid = $5 RETURNING *',
-      [title, price, description, imageurl, id]
+      'UPDATE Products SET name = $1, category = $2, type = $3, brand = $4, size = $5, description = $6, price = $7, imageurl = $8 WHERE productid = $9 RETURNING *',
+      [name, category, type, brand, size, description, price, imageurl, id]
     );
     res.status(200).json(result.rows[0]);
   } catch (err) {
@@ -186,12 +187,29 @@ app.put('/api/products/:id', async (req, res) => {
   }
 });
 
+// DELETE endpoint for products
 app.delete('/api/products/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM Products WHERE productid = $1', [id]);
+    console.log(`Attempting to delete product with id: ${id}`);
+    // First, delete all related entries in the orderdetails table
+    await pool.query('DELETE FROM OrderDetails WHERE ProductID = $1', [id]);
+    console.log(`Related entries in OrderDetails deleted for product id: ${id}`);
+
+    // Then, delete all related entries in the stock table
+    await pool.query('DELETE FROM Stock WHERE ProductID = $1', [id]);
+    console.log(`Related entries in Stock deleted for product id: ${id}`);
+
+    // Now, delete the product
+    const result = await pool.query('DELETE FROM Products WHERE productid = $1 RETURNING *', [id]);
+    if (result.rowCount === 0) {
+      console.log(`Product with id: ${id} not found`);
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    console.log(`Product with id: ${id} deleted successfully`);
     res.status(204).send();
   } catch (err) {
+    console.error('Error deleting product:', err.message);
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
@@ -305,13 +323,27 @@ app.get('/api/account/credit-cards/:customerId', async (req, res) => {
 
 // Create new order
 app.post('/api/orders', async (req, res) => {
-  const { customerId, addressId, cardId, cartItems } = req.body;
+  const { customerId, addressId, cardId, cartItems, deliveryType } = req.body;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    const orderTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    // Check product availability
+    for (const item of cartItems) {
+      const stockResult = await client.query(`
+        SELECT SUM(s.Quantity) AS total_quantity
+        FROM Stock s
+        WHERE s.ProductID = $1
+      `, [item.productid]);
+      const totalQuantity = stockResult.rows[0].total_quantity;
 
+      if (totalQuantity < item.quantity) {
+        throw new Error(`Product ${item.productid} does not have enough stock.`);
+      }
+    }
+
+    // Create the order
+    const orderTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const orderResult = await client.query(`
       INSERT INTO Orders (CustomerID, OrderDate, Status, Total, PaymentCardID)
       VALUES ($1, NOW(), 'Pending', $2, $3) RETURNING OrderID
@@ -319,21 +351,61 @@ app.post('/api/orders', async (req, res) => {
 
     const orderId = orderResult.rows[0].orderid;
 
-    const orderDetailsPromises = cartItems.map(item =>
-      client.query(`
+    // Create order details and update stock
+    for (const item of cartItems) {
+      await client.query(`
         INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Price)
         VALUES ($1, $2, $3, $4)
-      `, [orderId, item.productid, item.quantity, item.price])
-    );
+      `, [orderId, item.productid, item.quantity, item.price]);
 
-    await Promise.all(orderDetailsPromises);
+      let remainingQuantity = item.quantity;
+
+      // Get the stock details ordered by WarehouseID
+      const stockDetails = await client.query(`
+        SELECT WarehouseID, Quantity
+        FROM Stock
+        WHERE ProductID = $1
+        ORDER BY WarehouseID
+      `, [item.productid]);
+
+      for (const stock of stockDetails.rows) {
+        if (remainingQuantity <= 0) break;
+
+        const quantityToDeduct = Math.min(stock.quantity, remainingQuantity);
+
+        const stockUpdateResult = await client.query(`
+          UPDATE Stock
+          SET Quantity = Quantity - $1
+          WHERE WarehouseID = $2 AND ProductID = $3 AND Quantity >= $1
+          RETURNING *
+        `, [quantityToDeduct, stock.warehouseid, item.productid]);
+
+        if (stockUpdateResult.rowCount === 0) {
+          throw new Error(`Failed to update stock for product ${item.productid} in warehouse ${stock.warehouseid}.`);
+        }
+
+        remainingQuantity -= quantityToDeduct;
+      }
+
+      if (remainingQuantity > 0) {
+        throw new Error(`Not enough stock for product ${item.productid} after trying all warehouses.`);
+      }
+    }
 
     await client.query('DELETE FROM ShoppingCartItems WHERE CartID IN (SELECT CartID FROM ShoppingCart WHERE CustomerID = $1)', [customerId]);
+
+    // Create a delivery plan
+    const deliveryPrice = deliveryType === 'Express' ? 10.00 : 5.00; // Example pricing
+    const deliveryDate = deliveryType === 'Express' ? 'NOW() + INTERVAL \'2 days\'' : 'NOW() + INTERVAL \'5 days\'';
+    await client.query(`
+      INSERT INTO DeliveryPlans (OrderID, DeliveryType, DeliveryPrice, DeliveryDate, ShipDate)
+      VALUES ($1, $2, $3, ${deliveryDate}, NOW())
+    `, [orderId, deliveryType, deliveryPrice]);
 
     // Update customer's balance
     await client.query(`
       UPDATE Customers SET Balance = Balance + $1 WHERE CustomerID = $2
-    `, [orderTotal, customerId]);
+    `, [orderTotal + deliveryPrice, customerId]);
 
     await client.query('COMMIT');
     res.status(201).json({ orderId });
@@ -368,6 +440,50 @@ app.delete('/api/account/credit-card/:cardId', async (req, res) => {
     }
     res.status(200).json(result.rows[0]);
   } catch (err) {
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// Update an address
+app.put('/api/account/address/:addressId', async (req, res) => {
+  const { addressId } = req.params;
+  const { addressType, streetAddress, city, state, zipCode, country } = req.body;
+  try {
+    const queryText = `
+      UPDATE Addresses
+      SET AddressType = $1, StreetAddress = $2, City = $3, State = $4, ZipCode = $5, Country = $6
+      WHERE AddressID = $7 RETURNING *
+    `;
+    const queryValues = [addressType, streetAddress, city, state, zipCode, country, addressId];
+    const result = await pool.query(queryText, queryValues);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Address not found' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating address:', err.message);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// Update a credit card
+app.put('/api/account/credit-card/:cardId', async (req, res) => {
+  const { cardId } = req.params;
+  const { cardNumber, expiryDate, cvv, paymentAddressId } = req.body;
+  try {
+    const queryText = `
+      UPDATE CreditCards
+      SET CardNumber = $1, ExpiryDate = $2, CVV = $3, PaymentAddressID = $4
+      WHERE CardID = $5 RETURNING *
+    `;
+    const queryValues = [cardNumber, expiryDate, cvv, paymentAddressId, cardId];
+    const result = await pool.query(queryText, queryValues);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Credit card not found' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating credit card:', err.message);
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });

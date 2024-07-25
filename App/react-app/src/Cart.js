@@ -8,6 +8,7 @@ const Cart = ({ customerId }) => {
   const [creditCards, setCreditCards] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [selectedCard, setSelectedCard] = useState('');
+  const [deliveryType, setDeliveryType] = useState('Standard'); // Default to 'Standard'
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -75,7 +76,7 @@ const Cart = ({ customerId }) => {
 
   const handleCreateOrder = async () => {
     try {
-      await createOrder(customerId, selectedAddress, selectedCard, cartItems);
+      await createOrder(customerId, selectedAddress, selectedCard, cartItems, deliveryType); // Pass deliveryType to the createOrder function
       alert('Order created successfully!');
       setCartItems([]);
     } catch (error) {
@@ -126,6 +127,15 @@ const Cart = ({ customerId }) => {
                   {`Card ending in ${card.cardnumber.slice(-4)}`}
                 </option>
               ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            Select Delivery Type:
+            <select value={deliveryType} onChange={(e) => setDeliveryType(e.target.value)}>
+              <option value="Standard">Standard</option>
+              <option value="Express">Express</option>
             </select>
           </label>
         </div>

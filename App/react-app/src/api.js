@@ -85,8 +85,18 @@ export const addAddress = async (customerId, address) => {
   return response.data;
 };
 
+export const updateAddress = async (addressId, address) => {
+  const response = await axios.put(`${API_URL}/api/account/address/${addressId}`, address);
+  return response.data;
+};
+
 export const addCreditCard = async (customerId, creditCard) => {
   const response = await axios.post(`${API_URL}/api/account/credit-card`, { customerId, ...creditCard });
+  return response.data;
+};
+
+export const updateCreditCard = async (cardId, creditCard) => {
+  const response = await axios.put(`${API_URL}/api/account/credit-card/${cardId}`, creditCard);
   return response.data;
 };
 
@@ -100,10 +110,11 @@ export const getCreditCards = async (customerId) => {
   return response.data;
 };
 
-export const createOrder = async (customerId, addressId, cardId, cartItems) => {
-  const response = await axios.post(`${API_URL}/api/orders`, { customerId, addressId, cardId, cartItems });
+export const createOrder = async (customerId, addressId, cardId, cartItems, deliveryType) => {
+  const response = await axios.post(`${API_URL}/api/orders`, { customerId, addressId, cardId, cartItems, deliveryType });
   return response.data;
 };
+
 
 export const deleteAddress = async (addressId) => {
   const response = await axios.delete(`${API_URL}/api/account/address/${addressId}`);
@@ -123,5 +134,17 @@ export const payBalance = async (customerId, amount, cardId) => {
   });
   return response.data;
 };
+
+export const deleteProduct = async (productId) => {
+  try {
+    console.log(`Attempting to delete product with id: ${productId}`);
+    await axios.delete(`${API_URL}/api/products/${productId}`);
+    console.log(`Product with id: ${productId} deleted successfully`);
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    throw error;
+  }
+};
+
 
 
