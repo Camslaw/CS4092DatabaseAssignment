@@ -91,7 +91,7 @@ const StaffProductCard = ({ product, onUpdate, onDelete }) => {
         </>
       ) : (
         <>
-          <img src={product.imageurl} alt={product.name} className="product-image" />
+          <img src={`/images${product.imageurl}`} alt={product.name} className="product-image" />
           <div className="product-info">
             <h3 className="product-name">{product.name}</h3>
             <p className="product-category">Category: {product.category}</p>

@@ -2,6 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -21,6 +22,8 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false } // Set to true if using HTTPS
 }));
+
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -328,17 +331,21 @@ app.post('/api/orders', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Check product availability
+    // Check product availability and gather warehouse details
     for (const item of cartItems) {
       const stockResult = await client.query(`
-        SELECT SUM(s.Quantity) AS total_quantity
+        SELECT s.WarehouseID, w.Address, s.Quantity
         FROM Stock s
+        JOIN Warehouses w ON s.WarehouseID = w.WarehouseID
         WHERE s.ProductID = $1
       `, [item.productid]);
-      const totalQuantity = stockResult.rows[0].total_quantity;
+
+      const warehouseQuantities = stockResult.rows;
+      const totalQuantity = warehouseQuantities.reduce((sum, row) => sum + row.quantity, 0);
 
       if (totalQuantity < item.quantity) {
-        throw new Error(`Product ${item.productid} does not have enough stock.`);
+        const warehouseDetails = warehouseQuantities.map(row => `Warehouse ${row.warehouseid} at ${row.address} has ${row.quantity}`).join(', ');
+        throw new Error(`Product ${item.productid} does not have enough stock. Available quantities: ${warehouseDetails}`);
       }
     }
 
@@ -419,16 +426,37 @@ app.post('/api/orders', async (req, res) => {
 
 app.delete('/api/account/address/:addressId', async (req, res) => {
   const { addressId } = req.params;
+  const client = await pool.connect();
+  
   try {
-    const result = await pool.query('DELETE FROM Addresses WHERE AddressID = $1 RETURNING *', [addressId]);
-    if (result.rows.length === 0) {
+    await client.query('BEGIN');
+
+    // Find and delete the credit card associated with the address
+    const cardResult = await client.query('DELETE FROM CreditCards WHERE PaymentAddressID = $1 RETURNING *', [addressId]);
+    if (cardResult.rows.length === 0) {
+      console.log(`No credit card found for address id: ${addressId}`);
+    } else {
+      console.log(`Deleted credit card associated with address id: ${addressId}`);
+    }
+
+    // Delete the address
+    const addressResult = await client.query('DELETE FROM Addresses WHERE AddressID = $1 RETURNING *', [addressId]);
+    if (addressResult.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Address not found' });
     }
-    res.status(200).json(result.rows[0]);
+
+    await client.query('COMMIT');
+    res.status(200).json({ address: addressResult.rows[0], card: cardResult.rows[0] });
   } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error deleting address and associated credit card:', err.message);
     res.status(500).json({ error: 'Internal server error', details: err.message });
+  } finally {
+    client.release();
   }
 });
+
 
 // Delete credit card
 app.delete('/api/account/credit-card/:cardId', async (req, res) => {
@@ -535,7 +563,6 @@ app.get('/api/warehouses', async (req, res) => {
   }
 });
 
-
 app.post('/api/warehouses/:warehouseId/products', async (req, res) => {
   const { warehouseId } = req.params;
   const { productId, quantity } = req.body;
@@ -549,8 +576,6 @@ app.post('/api/warehouses/:warehouseId/products', async (req, res) => {
     res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
-
-
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);

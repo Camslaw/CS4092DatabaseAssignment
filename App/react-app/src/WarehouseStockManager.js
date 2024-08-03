@@ -1,18 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './WarehouseStockManager.css';
 
 const WarehouseStockManager = ({ product, warehouses, onAddToWarehouse }) => {
   const [selectedWarehouse, setSelectedWarehouse] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleAddToWarehouse = () => {
-    onAddToWarehouse(selectedWarehouse, product.productid, quantity);
-    setQuantity(1); // Reset quantity after adding
+  const handleAddToWarehouse = async () => {
+    if (!selectedWarehouse) {
+      setErrorMessage('Please select a warehouse.');
+      return;
+    }
+
+    try {
+      await onAddToWarehouse(selectedWarehouse, product.productid, quantity);
+      setQuantity(1); // Reset quantity after adding
+      setErrorMessage(''); // Clear error message on success
+    } catch (error) {
+      const message = error.response?.data?.details || error.response?.data?.error || error.message || 'An unknown error occurred';
+      setErrorMessage(message);
+    }
   };
 
   return (
     <div className="warehouse-stock-manager">
       <h3>{product.title}</h3>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <label htmlFor="warehouse">Warehouse:</label>
       <select
         id="warehouse"

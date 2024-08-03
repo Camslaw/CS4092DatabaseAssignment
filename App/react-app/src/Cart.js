@@ -9,6 +9,7 @@ const Cart = ({ customerId }) => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [selectedCard, setSelectedCard] = useState('');
   const [deliveryType, setDeliveryType] = useState('Standard'); // Default to 'Standard'
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -79,7 +80,9 @@ const Cart = ({ customerId }) => {
       await createOrder(customerId, selectedAddress, selectedCard, cartItems, deliveryType); // Pass deliveryType to the createOrder function
       alert('Order created successfully!');
       setCartItems([]);
+      setErrorMessage(''); // Reset the error message
     } catch (error) {
+      setErrorMessage(error.response.data.details);
       console.error('Error creating order', error);
     }
   };
@@ -87,10 +90,11 @@ const Cart = ({ customerId }) => {
   return (
     <div className="cart-container">
       <h2>Your Shopping Cart</h2>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className="cart-items">
         {cartItems.map((item) => (
           <div key={item.cartitemid} className="cart-item">
-            <img src={item.imageurl} alt={item.name} className="item-image" />
+            <img src={`/images${item.imageurl}`} alt={item.name} className="item-image" />
             <div className="item-details">
               <div className="item-name">{item.name}</div>
               <div className="item-price">${item.price.toFixed(2)}</div>

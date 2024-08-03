@@ -168,11 +168,11 @@ VALUES  (1, '1234567812345678', '2025-12-31', '123', 1),
 
 -- 5. Add products
 INSERT INTO Products (Name, Category, Type, Brand, Size, Description, Price, ImageURL)
-VALUES  ('Product1', 'Electronics', 'Laptop', 'Dell', '15 inch', 'A powerful laptop', 999.99, 'http://example.com/product1.jpg'),
-        ('Product2', 'Electronics', 'Mouse', 'Logitech', '3 x 4 x 5 inch', 'A powerful mouse', 49.99, 'http://example.com/product2.jpg'),
-        ('Product3', 'Electronics', 'Keyboard', 'Keychron', '12 x 4 x 2 inch', 'A mechanical keyboard', 89.99, 'http://example.com/product3.jpg'),
-        ('Product4', 'Electronics', 'Monitor', 'Samsung', '27 inch', 'A high-resolution monitor', 299.99, 'http://example.com/product4.jpg'),
-        ('Product5', 'Electronics', 'Mousepad', 'Logitech', '12 x 12 x 0.3 inch', 'A large mousepad', 19.99, 'http://example.com/product5.jpg');
+VALUES  ('Product1', 'Electronics', 'Keyboard', 'Redragon', '12 x 6 x 2 inch', 'A black mechanical keyboard', 59.99, '/products/black_multi_colorLs.webp'),
+        ('Product2', 'Electronics', 'Mouse', 'Logitech', '3 x 4 x 5 inch', 'A powerful mouse', 49.99, '/products/logi_black.webp'),
+        ('Product3', 'Electronics', 'Keyboard', 'Keychron', '12 x 4 x 2 inch', 'An ice blue mechanical keyboard', 89.99, '/products/ice_blue.webp'),
+        ('Product4', 'Electronics', 'Monitor', 'LG', '27 inch', 'A high-resolution monitor', 299.99, '/products/LG_ultragear.webp'),
+        ('Product5', 'Electronics', 'Monitor', 'LG', '47"', 'A high-resoluton curved monitor', 699.99, '/products/LG_UltraGear_curved.webp');
 
 -- 6. Add warehouses
 INSERT INTO Warehouses (Address, Capacity)

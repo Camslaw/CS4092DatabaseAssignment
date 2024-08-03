@@ -135,12 +135,15 @@ const Account = ({ customerId, onSignOut }) => {
 
   const handleDeleteAddress = async (addressId) => {
     try {
-      await deleteAddress(addressId);
+      const response = await deleteAddress(addressId);
       setAddresses(addresses.filter(address => address.addressid !== addressId));
+      setCreditCards(creditCards.filter(card => card.paymentaddressid !== addressId));
+      alert('Address and associated credit card deleted successfully!');
     } catch (err) {
-      console.error('Failed to delete address:', err);
+      console.error('Failed to delete address and associated credit card:', err);
     }
   };
+  
 
   const handleDeleteCreditCard = async (cardId) => {
     try {

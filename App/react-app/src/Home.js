@@ -58,7 +58,7 @@ const Home = ({ customerId }) => {
         {filteredProducts.map((product, index) => (
           <ProductCard
             key={index}
-            image={product.imageurl}
+            image={`/images${product.imageurl}`}
             name={product.name}
             category={product.category}
             type={product.type}

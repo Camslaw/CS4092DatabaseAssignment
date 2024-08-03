@@ -10,6 +10,7 @@ const Staff = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [products, setProducts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSignIn = (staff) => {
     setIsAuthenticated(true);
@@ -98,7 +99,10 @@ const Staff = () => {
       });
       const data = await response.json();
       console.log('Product added to warehouse:', data);
+      setErrorMessage(''); // Clear error message on success
     } catch (err) {
+      const message = err.response?.data?.details || err.response?.data?.error || err.message || 'An unknown error occurred';
+      setErrorMessage(message);
       console.error('Error adding product to warehouse:', err);
     }
   };
@@ -122,6 +126,7 @@ const Staff = () => {
             ))}
           </div>
           <h2>Warehouse Management</h2>
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
           <div className="warehouse-grid">
             {products.map((product, index) => (
               <WarehouseStockManager
